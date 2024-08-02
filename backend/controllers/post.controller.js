@@ -100,8 +100,9 @@ export const likeUnlikePost = async(req,res) => {
 
         const userLikedPost = post.likes.includes(userId);
         if(userLikedPost){
+            //unlike
             await Post.updateOne({_id:postId}, {$pull: {likes: userId}})
-            await User.updateOne({_id:userId}, {$pull: {likedPost: postId }});
+            await User.updateOne({_id:userId}, {$pull: {likedPosts: postId }});
 
             const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
             res.status(200).json(updatedLikes);
@@ -120,7 +121,6 @@ export const likeUnlikePost = async(req,res) => {
             const updatedLikes = post.likes;
 
             res.status(200).json(updatedLikes);
-
         }
 
     } catch (error) {
@@ -162,10 +162,10 @@ export const getLikedPosts = async(req,res) => {
         const likedPosts = await Post.find({_id: {$in: user.likedPosts}})
         .populate({
             path: "user",
-            select: "-password"
+            select: "-password",
         }).populate({
             path: "comments.user",
-            select: "-password"
+            select: "-password",
         });
 
         res.status(200).json(likedPosts);
